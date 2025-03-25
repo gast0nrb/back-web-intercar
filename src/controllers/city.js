@@ -2,6 +2,7 @@ const City = require("../models/City");
 const dryFn = require("../middlewares/dryFn");
 const { NotFound, GeneralError } = require("../helpers/classError");
 
+
 const getCities = dryFn(async (req, res, next) => {
   const cities = await City.findAll({ order: [["id", "ASC"]] });
 

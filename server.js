@@ -8,6 +8,8 @@ const testConn = require("./src/database/connection")
 
 //Routes
 const r_city = require("./src/routes/r_city")
+const r_category = require("./src/routes/r_category")
+const r_product = require("./src/routes/r_product")
 
 const app = express();
 
@@ -21,6 +23,8 @@ testConn();
 
 //Rutas
 app.use(ROUTE, r_city);
+app.use(ROUTE, r_category)
+app.use(ROUTE, r_product)
 
 //Handle errors
 app.use(logError);
