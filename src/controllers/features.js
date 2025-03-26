@@ -2,6 +2,16 @@ const Features = require("../models/Features");
 const sq = require("../database/conn");
 const dryFn = require("../middlewares/dryFn");
 const { GeneralError } = require("../helpers/classError");
+const FeatureProduct = require("../models/FeatureProduct");
+const Product = require("../models/Product");
+
+const getProductsByFeature = dryFn(async (req, res, next) => {
+  const products = await Features.findAll({
+    where: { id: req.params.id },
+    include: [{ model: FeatureProduct, include: [{ model: Product }] }],
+  });
+  res.status(200).json({ success: true, data: products });
+});
 
 const createFeature = dryFn(async (req, res, next) => {
   const t = sq
@@ -59,4 +69,4 @@ const getFeatures = dryFn(async (req, res, next) => {
   res.status(200).json({ success: true, data: features });
 });
 
-module.exports = { createFeature, updateFeature, deleteFeature, getFeatures };
+module.exports = { createFeature, updateFeature, deleteFeature, getFeatures, getProductsByFeature };

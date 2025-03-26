@@ -12,7 +12,7 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
       id: req.params.id,
     },
     include : [
-      {model : Subcategory, include : {model : Product, include : {model: FeatureProduct}}}
+      {model : Subcategory, include : {model : Product, include : {model: FeatureProduct, include : {model : Features}}}}
     ]
   });
   res.status(200).json({
