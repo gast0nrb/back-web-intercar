@@ -2,7 +2,7 @@ const sq = require("../database/conn");
 const { DataTypes } = require("sequelize");
 
 const District = sq.define(
-  "District",
+  "DISTRICT",
   {
     id: {
       primaryKey: true,

@@ -1,8 +1,8 @@
 const sq = require("../database/conn");
-const { DataTypes } = require("sequelize");
+const {DataTypes} = require("sequelize");
 
-const Category = sq.define(
-  "CATEGORY",
+const Features = sq.define(
+  "FEATURES",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -14,8 +14,10 @@ const Category = sq.define(
       allowNull: false,
       unique: true,
     },
-  },
-  { timestamps: false, freezeTableName: true }
-);
+  },{
+    timestamps: true,
+    freezeTableName: true,
+  }
+)
 
-module.exports = Category;
+module.exports = Features;

@@ -1,8 +1,9 @@
 const sq = require("../database/conn");
 const { DataTypes } = require("sequelize");
+const Category = require("./Category");
 
-const Category = sq.define(
-  "CATEGORY",
+const Subcategory = sq.define(
+  "SUBCATEGORY",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -18,4 +19,16 @@ const Category = sq.define(
   { timestamps: false, freezeTableName: true }
 );
 
-module.exports = Category;
+Category.hasMany(Subcategory,{
+     foreignKey: "fk_category", allowNull: false
+    });
+
+Subcategory.belongsTo(Category, {
+  foreignKey: "fk_category",
+  allowNull: false,
+});
+
+
+module.exports = Subcategory;
+
+

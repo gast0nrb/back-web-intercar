@@ -1,6 +1,25 @@
-const Category = require("../models/Category")
-const dryFn = require("../middlewares/dryFn")
-const {GeneralError} = require("../helpers/classError")
+const Category = require("../models/Category");
+const dryFn = require("../middlewares/dryFn");
+const { GeneralError } = require("../helpers/classError");
+const Subcategory = require("../models/Subcategory");
+const Product = require("../models/Product");
+const FeatureProduct = require("../models/FeatureProduct");
+const Features = require("../models/Features");
+
+const getProductsByCategory = dryFn(async (req, res, next) => {
+  const productsByCategory = await Category.findAll({
+    where: {
+      id: req.params.id,
+    },
+    include : [
+      {model : Subcategory, include : {model : Product, include : {model: FeatureProduct}}}
+    ]
+  });
+  res.status(200).json({
+    success: true,
+    data: productsByCategory,
+  });
+});
 
 const getCategories = dryFn(async (req, res, next) => {
   const category = await Category.findAll({ order: [["id", "ASC"]] });
@@ -12,11 +31,11 @@ const getCategories = dryFn(async (req, res, next) => {
   });
 });
 
-const updateCategory =  dryFn(async (req, res, next) => {
+const updateCategory = dryFn(async (req, res, next) => {
   const ct = await Category.findByPk(req.params.id);
   if (!ct) {
     return next(
-      new GeneralError("no se encontró categoria con el id: " + req.params.id, 404)
+      new GeneralError("Category not found with id: " + req.params.id, 404)
     );
   }
   const t = sq
@@ -28,7 +47,7 @@ const updateCategory =  dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Modificada la categoria con id ${req.params.id}`,
+          message: `Category updated successfully with id ${req.params.id}`,
           newvalues: req.body,
         },
       });
@@ -45,7 +64,7 @@ const createCategory = dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Creada correctamente la categoria`,
+          message: `Category created successfully`,
           newvalues: req.body,
         },
       });
@@ -57,9 +76,7 @@ const createCategory = dryFn(async (req, res, next) => {
 const deleteCategory = dryFn(async (req, res, next) => {
   const ct = await Category.findByPk(req.params.id);
   if (!ct) {
-    return next(
-      new NotFound(`no se encontro categoria con el id ${req.params.id}`)
-    );
+    return next(new NotFound(`Category not found with id ${req.params.id}`));
   }
   const t = sq
     .transaction(async () => {
@@ -67,7 +84,7 @@ const deleteCategory = dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Se elimino la categoria con el id ${req.params.id}`,
+          message: `Category deleted successfully with id ${req.params.id}`,
         },
       });
       return category;
@@ -76,8 +93,9 @@ const deleteCategory = dryFn(async (req, res, next) => {
 });
 
 module.exports = {
-    createCategory,
-    deleteCategory,
-    updateCategory, 
-    getCategories
+  createCategory,
+  deleteCategory,
+  updateCategory,
+  getCategories,
+  getProductsByCategory,
 };

@@ -5,7 +5,7 @@ const { NotFound, GeneralError } = require("../helpers/classError");
 const getProduct = dryFn(async(req, res, next)=> {
     const product = await Product.findByPk(req.params.id);
     if (!product){
-        return next(new GeneralError("No se encontró producto con el sku indicado: "+ req.params.id))
+        return next(new GeneralError("Product not found", 404))
     }
     res.status(200).json({
         success: true, 
@@ -28,7 +28,7 @@ const updateProduct = dryFn(async (req, res, next) => {
   const pd = await Product.findByPk(req.params.sku);
   if (!pd) {
     return next(
-      new GeneralError("no se encontró producto con el sku: " + req.params.id, 404)
+      new GeneralError("Product not found with sku: " + req.params.id, 404)
     );
   }
   const t = sq
@@ -40,7 +40,7 @@ const updateProduct = dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Modificado el producto con sku ${req.params.id}`,
+          message: `Product updated successfully with sku ${req.params.id}`,
           newvalues: req.body,
         },
       });
@@ -57,7 +57,7 @@ const createProduct = dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Creado correctamente el producto`,
+          message: `Product created successfully`,
           newvalues: req.body,
         },
       });
@@ -70,7 +70,7 @@ const deleteProduct = dryFn(async (req, res, next) => {
   const pd = await Product.findByPk(req.params.id);
   if (!pd) {
     return next(
-      new NotFound(`no se encontro producto con el sku ${req.params.id}`)
+      new NotFound(`Product not found with sku ${req.params.id}`)
     );
   }
   const t = sq
@@ -79,7 +79,7 @@ const deleteProduct = dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Se elimino el producto con el sku ${req.params.id}`,
+          message: `Product deleted successfully with sku ${req.params.id}`,
         },
       });
       return product;

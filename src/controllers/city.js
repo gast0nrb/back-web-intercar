@@ -17,7 +17,7 @@ const updateCity = dryFn(async (req, res, next) => {
   const ct = await City.findByPk(req.params.id);
   if (!ct) {
     return next(
-      new GeneralError("no se encontró ciudad con el id: " + req.params.id, 404)
+      new GeneralError("City not found with id: " + req.params.id, 404)
     );
   }
   const t = sq
@@ -29,7 +29,7 @@ const updateCity = dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Modificada la ciudad con id ${req.params.id}`,
+          message: `City updated successfully with id ${req.params.id}`,
           newvalues: req.body,
         },
       });
@@ -46,7 +46,7 @@ const createCity = dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Creada correctamente la ciudad`,
+          message: `City created successfully`,
           newvalues: req.body,
         },
       });
@@ -59,7 +59,7 @@ const deleteCity = dryFn(async (req, res, next) => {
   const ct = await City.findByPk(req.params.id);
   if (!ct) {
     return next(
-      new NotFound(`no se encontro ciudad con el id ${req.params.id}`)
+      new NotFound(`City not found with id ${req.params.id}`)
     );
   }
   const t = sq
@@ -68,7 +68,7 @@ const deleteCity = dryFn(async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: {
-          message: `Se elimino la ciudad con el id ${req.params.id}`,
+          message: `City deleted successfully with id ${req.params.id}`,
         },
       });
       return city;

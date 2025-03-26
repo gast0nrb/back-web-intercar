@@ -1,5 +1,6 @@
 const sq = require("../database/conn");
 const { DataTypes } = require("sequelize");
+const Subcategory = require("./Subcategory");
 
 const Product = sq.define("PRODUCT", {
     sku : {
@@ -47,5 +48,15 @@ const Product = sq.define("PRODUCT", {
         defaultValue : "/defaultImage.png" 
     }
 },  {timestamps : true, freezeTableName: true})
+
+Product.belongsTo(Subcategory, {
+    foreignKey: "fk_subcategory",
+    allowNull: false,
+})
+
+Subcategory.hasMany(Product, {
+    foreignKey: "fk_subcategory",
+    allowNull: false,
+})
 
 module.exports = Product

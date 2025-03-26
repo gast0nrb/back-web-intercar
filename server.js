@@ -10,7 +10,9 @@ const testConn = require("./src/database/connection")
 const r_city = require("./src/routes/r_city")
 const r_category = require("./src/routes/r_category")
 const r_product = require("./src/routes/r_product")
-
+const r_branches = require("./src/routes/r_branches")
+const r_subcategory = require("./src/routes/r_subcategory")
+const r_feature = require("./src/routes/r_feature")
 const app = express();
 
 //Init env variables
@@ -25,7 +27,9 @@ testConn();
 app.use(ROUTE, r_city);
 app.use(ROUTE, r_category)
 app.use(ROUTE, r_product)
-
+app.use(ROUTE, r_branches)
+app.use(ROUTE, r_subcategory)
+app.use(ROUTE, r_feature)
 //Handle errors
 app.use(logError);
 app.use(handleError);
