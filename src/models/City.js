@@ -1,5 +1,6 @@
 const sq = require("../database/conn");
 const {DataTypes} = require("sequelize")
+const District = require("./District");
 
 const City = sq.define(
   "CITY",
@@ -20,5 +21,17 @@ const City = sq.define(
     freezeTableName: true,
   }
 );
+
+City.hasMany(District, {
+  foreignKey: "city_id",
+  sourceKey: "id",
+  primaryKey: true,
+});
+
+District.belongsTo(City, {
+  foreignKey: "city_id",
+  targetKey: "id",
+  primaryKey: true,
+});
 
 module.exports = City;

@@ -6,7 +6,16 @@ const District = require("../models/District");
 const City = require("../models/City");
 
 const getBranches = dryFn(async (req, res, next) => {
-  const branches = await Branch.findAll({include: [{model: District, include: [{model: City}]}]});
+  let whereObj = {};
+  if (req.query.district) {
+    whereObj = {
+      fk_district: req.params.id,
+    };
+  }
+  const branches = await Branch.findAll({
+    whereObj,
+    include: [{ model: District, include: [{ model: City }] }],
+  });
   res.status(200).json({
     success: true,
     length: branches.length,
@@ -67,7 +76,9 @@ const deleteBranch = dryFn(async (req, res, next) => {
 });
 
 const getBranch = dryFn(async (req, res, next) => {
-  const branch = await Branch.findByPk(req.params.id, {include: [{model: District, include: [{model: City}]}]});
+  const branch = await Branch.findByPk(req.params.id, {
+    include: [{ model: District, include: [{ model: City }] }],
+  });
   if (!branch) {
     return next(new GeneralError("Branch not found", 404));
   }
