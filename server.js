@@ -13,6 +13,7 @@ const r_product = require("./src/routes/r_product")
 const r_branches = require("./src/routes/r_branches")
 const r_subcategory = require("./src/routes/r_subcategory")
 const r_feature = require("./src/routes/r_feature")
+const r_user = require("./src/routes/r_user")
 const app = express();
 
 //Init env variables
@@ -30,6 +31,8 @@ app.use(ROUTE, r_product)
 app.use(ROUTE, r_branches)
 app.use(ROUTE, r_subcategory)
 app.use(ROUTE, r_feature)
+app.use(ROUTE, r_user)
+
 //Handle errors
 app.use(logError);
 app.use(handleError);
