@@ -14,6 +14,8 @@ const r_branches = require("./src/routes/r_branches")
 const r_subcategory = require("./src/routes/r_subcategory")
 const r_feature = require("./src/routes/r_feature")
 const r_user = require("./src/routes/r_user")
+const r_role = require("./src/routes/r_role")
+
 const app = express();
 
 //Init env variables
@@ -32,6 +34,7 @@ app.use(ROUTE, r_branches)
 app.use(ROUTE, r_subcategory)
 app.use(ROUTE, r_feature)
 app.use(ROUTE, r_user)
+app.use(ROUTE, r_role)
 
 //Handle errors
 app.use(logError);

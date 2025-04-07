@@ -1,21 +1,32 @@
 const User = require("../models/User")
-const UserRole = require("../models/UserRole")
 const Role = require("../models/Role")
 const dryFn = require("../middlewares/dryFn")
 const { GeneralError } = require("../helpers/classError")
 const sq = require("../database/conn")
+const { comparePass } = require("../helpers/auth")
+const { generateTkn } = require("../helpers/generateTkn")
+
+const logIn = dryFn(async (req, res, next) => {
+    const u1 = await User.findOne({ where: { email: req.body.email }, include: { model: Role } });
+
+    if (!u1 || !(await comparePass(req.body.password, u1.hashedPassword))) {
+        return next(new GeneralError("Invalid email or password", 401))
+    }
+
+    generateTkn(res, u1.id, u1.id_role);
+
+    res.status(200).json({
+        success: true,
+        message: "Logged in successfully",
+    })
+})
 
 const getUsers = dryFn(async (req, res, next) => {
     const users = await User.findAll({
         include: [
             {
-                model: UserRole,
-                include: [
-                    {
-                        model: Role,
-                        attributes: ["name", "description"]
-                    }
-                ]
+                model: Role,
+                attributes: ["name", "description"]
             }
         ]
     });
@@ -76,9 +87,9 @@ const createUser = dryFn(async (req, res, next) => {
         })
         return user
     })
-    .catch((err) => {
-        next(err, 500)
-    })
+        .catch((err) => {
+            next(err, 500)
+        })
 })
 
 module.exports = {
