@@ -5,6 +5,7 @@ const Subcategory = require("../models/Subcategory");
 const Product = require("../models/Product");
 const FeatureProduct = require("../models/FeatureProduct");
 const Features = require("../models/Features");
+const sq = require("../database/conn.js");
 
 const getProductsByCategory = dryFn(async (req, res, next) => {
   const productsByCategory = await Category.findAll({

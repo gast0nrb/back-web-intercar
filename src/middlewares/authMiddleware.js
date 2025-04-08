@@ -4,7 +4,7 @@ const { GeneralError } = require("../helpers/classError");
 const JWT_SECRET = process.env.JWT_SECRET;
 const asyncHandler = require("express-async-handler");
 
-const protect = asyncHandler(async (req, res, next, expectedRole) => {
+const protect = asyncHandler(async (req, res, next) => {
     let token;
     token = req.cookies.intercarjwt;
 

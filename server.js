@@ -26,9 +26,11 @@ const ROUTE = process.env.ROUTE
 //Test db
 testConn();
 
+app.use(express.json())
+
 //Rutas
 app.use(ROUTE, r_city);
-app.use(ROUTE, r_category)
+app.use(ROUTE, r_category);
 app.use(ROUTE, r_product)
 app.use(ROUTE, r_branches)
 app.use(ROUTE, r_subcategory)
