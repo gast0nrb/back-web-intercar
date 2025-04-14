@@ -15,6 +15,7 @@ const r_subcategory = require("./src/routes/r_subcategory")
 const r_feature = require("./src/routes/r_feature")
 const r_user = require("./src/routes/r_user")
 const r_role = require("./src/routes/r_role")
+const r_district = require("./src/routes/r_district");
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use(ROUTE, r_subcategory)
 app.use(ROUTE, r_feature)
 app.use(ROUTE, r_user)
 app.use(ROUTE, r_role)
+app.use(ROUTE, r_district)
 
 //Handle errors
 app.use(logError);

@@ -1,6 +1,7 @@
 const City = require("../models/City");
 const dryFn = require("../middlewares/dryFn");
 const { NotFound, GeneralError } = require("../helpers/classError");
+const sq = require("../database/conn")
 
 
 const getCities = dryFn(async (req, res, next) => {

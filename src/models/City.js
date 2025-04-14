@@ -26,12 +26,14 @@ City.hasMany(District, {
   foreignKey: "city_id",
   sourceKey: "id",
   primaryKey: true,
+  allowNull : false
 });
 
 District.belongsTo(City, {
   foreignKey: "city_id",
   targetKey: "id",
   primaryKey: true,
+  allowNull: false
 });
 
 module.exports = City;

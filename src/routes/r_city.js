@@ -7,8 +7,8 @@ const {
   updateCity,
 } = require("../controllers/city");
 
-router.route("/ciudad").get(getCities).post(createCity);
+router.route("/city").get(getCities).post(createCity);
 
-router.route("/ciudad/:id").put(updateCity).delete(deleteCity);
+router.route("/city/:id").put(updateCity).delete(deleteCity);
 
 module.exports = router;

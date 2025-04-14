@@ -8,7 +8,7 @@ const {
   getBranch,    
 } = require("../controllers/branch");
 
-router.route("/sucursales").get(getBranches).post(createBranch);
-router.route("/sucursales/:id").get(getBranch).put(updateBranch).delete(deleteBranch);
+router.route("/branch").get(getBranches).post(createBranch);
+router.route("/branch/:id").get(getBranch).put(updateBranch).delete(deleteBranch);
 
 module.exports = router;

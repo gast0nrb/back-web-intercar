@@ -70,7 +70,12 @@ const deleteBranch = dryFn(async (req, res, next) => {
   }
   const t = sq
     .transaction(async () => {
-      await Branch.destroy({ where: { id: req.params.id } });
+      const branch = await Branch.destroy({ where: { id: req.params.id } });
+      res.status(200).json({
+        success: true, 
+        data : `Branch ${req.params.id} deleted succesfully`
+      })
+        return branch;
     })
     .catch((e) => next(e));
 });
