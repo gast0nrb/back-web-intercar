@@ -51,4 +51,19 @@ const getSubcategoryById = dryFn(async (req, res, next) => {
     res.status(200).json({success: true, data: subcategory});
 })
 
-module.exports = {getSubcategories, createSubcategory, updateSubcategory, deleteSubcategory, getSubcategoryById};
+const getSubcategoriesByCategory = dryFn(async(req, res, next)=> {
+  const subcategories = await Subcategory.findAll({where : {
+    fk_category : req.params.id, 
+  }, include : {model : Category}})
+  if(subcategories.length == 0) {
+    return next(new GeneralError("Doesn't find any subcategory with id:" + req.params.id, 404));
+  }
+  res.status(200).json({
+    success : true,
+    data: subcategories
+  })
+})
+
+
+
+module.exports = {getSubcategories, createSubcategory, updateSubcategory, deleteSubcategory, getSubcategoryById, getSubcategoriesByCategory};

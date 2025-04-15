@@ -35,7 +35,7 @@ const Product = sq.define("PRODUCT", {
         type : DataTypes.INTEGER,
         defaultValue: 1
     },
-    onale : {
+    onsale : {
         type : DataTypes.BOOLEAN,
         defaultValue : false
     },
@@ -49,14 +49,18 @@ const Product = sq.define("PRODUCT", {
     }
 },  {timestamps : true, freezeTableName: true})
 
-Product.belongsTo(Subcategory, {
-    foreignKey: "fk_subcategory",
-    allowNull: false,
+Product.belongsTo(Subcategory,{
+    foreignKey: {
+        allowNull : false,
+        name : "fk_subcategory"
+    }
 })
 
 Subcategory.hasMany(Product, {
-    foreignKey: "fk_subcategory",
-    allowNull: false,
+    foreignKey : {
+        allowNull : false,
+        name : "fk_subcategory"
+    }
 })
 
 module.exports = Product

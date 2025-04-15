@@ -1,26 +1,7 @@
 const Category = require("../models/Category");
 const dryFn = require("../middlewares/dryFn");
 const { GeneralError } = require("../helpers/classError");
-const Subcategory = require("../models/Subcategory");
-const Product = require("../models/Product");
-const FeatureProduct = require("../models/FeatureProduct");
-const Features = require("../models/Features");
 const sq = require("../database/conn.js");
-
-const getProductsByCategory = dryFn(async (req, res, next) => {
-  const productsByCategory = await Category.findAll({
-    where: {
-      id: req.params.id,
-    },
-    include : [
-      {model : Subcategory, include : {model : Product, include : {model: FeatureProduct, include : {model : Features}}}}
-    ]
-  });
-  res.status(200).json({
-    success: true,
-    data: productsByCategory,
-  });
-});
 
 const getCategories = dryFn(async (req, res, next) => {
   const category = await Category.findAll({ order: [["id", "ASC"]] });
@@ -97,6 +78,5 @@ module.exports = {
   createCategory,
   deleteCategory,
   updateCategory,
-  getCategories,
-  getProductsByCategory,
+  getCategories
 };
