@@ -19,11 +19,17 @@ const Role = sq.define("ROLE", {
 }, { freezeTableName: true, timestamps: false })
 
 Role.hasMany(User, {
-    foreignKey: "fk_role", allowNull: false
+    foreignKey: {
+        name : "fk_role",
+        allowNull : false
+    },
 })
 
 User.belongsTo(Role, {
-    foreignKey: "fk_role", allowNull: false
+    foreignKey: {
+        name : "fk_role",
+        allowNull : false
+    }
 })
 
 module.exports = Role

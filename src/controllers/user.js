@@ -4,20 +4,17 @@ const dryFn = require("../middlewares/dryFn")
 const { GeneralError } = require("../helpers/classError")
 const sq = require("../database/conn")
 const { comparePass } = require("../helpers/auth")
-const { generateTkn } = require("../helpers/generateTkn")
+const bcrypt = require("bcrypt");
 
 const logIn = dryFn(async (req, res, next) => {
     const u1 = await User.findOne({ where: { email: req.body.email }, include: { model: Role } });
-
-    if (!u1 || !(await comparePass(req.body.password, u1.hashedPassword))) {
+    const {password} = req.headers
+    if (!u1 || !(await comparePass(password, u1.hashedPassword))) {
         return next(new GeneralError("Invalid email or password", 401))
     }
-
-    generateTkn(res, u1.id, u1.id_role);
-
     res.status(200).json({
         success: true,
-        message: "Logged in successfully",
+        message: "Log in successfully",
     })
 })
 
@@ -78,8 +75,11 @@ const deleteUser = dryFn(async (req, res, next) => {
 })
 
 const createUser = dryFn(async (req, res, next) => {
-    const sq = sq.transaction(async (t) => {
-        const user = await User.create(req.body)
+    const t = sq.transaction(async (t) => {
+        const {password} = req.headers;
+        const {name, email, fk_role} = req.body;
+        const hash = await bcrypt.hash(password, 10);
+        const user = await User.create({name : name, email : email, hashedPassword: hash, fk_role: fk_role})
         res.status(200).json({
             success: true,
             message: "User created successfully",
@@ -90,13 +90,14 @@ const createUser = dryFn(async (req, res, next) => {
         .catch((err) => {
             next(err, 500)
         })
-})
+});
 
 module.exports = {
     getUsers,
     updateUser,
     deleteUser,
-    createUser
+    createUser,
+    logIn
 }
 
 
