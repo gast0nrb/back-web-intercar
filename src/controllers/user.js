@@ -3,15 +3,20 @@ const Role = require("../models/Role")
 const dryFn = require("../middlewares/dryFn")
 const { GeneralError } = require("../helpers/classError")
 const sq = require("../database/conn")
-const { comparePass } = require("../helpers/auth")
+const { comparePass, generateToken, verifyToken } = require("../helpers/auth")
 const bcrypt = require("bcrypt");
 
 const logIn = dryFn(async (req, res, next) => {
+    //Chequea si existe el usuario
     const u1 = await User.findOne({ where: { email: req.body.email }, include: { model: Role } });
-    const {password} = req.headers
+    //Quita la contraseña del header
+    const {password} = req.headers;
+    //Si no existe usuario o al comparar las contraseñas no es correcto se envía un invalid request
     if (!u1 || !(await comparePass(password, u1.hashedPassword))) {
         return next(new GeneralError("Invalid email or password", 401))
     }
+    //Genera un token y lo envía en un cookie (intercartoken)
+    generateToken(res, u1.id, u1.fk_role);
     res.status(200).json({
         success: true,
         message: "Log in successfully",
