@@ -2,10 +2,18 @@ const Category = require("../models/Category");
 const dryFn = require("../middlewares/dryFn");
 const { GeneralError } = require("../helpers/classError");
 const sq = require("../database/conn.js");
+const paginateQuery =  require("../helpers/pagination.js")
 
 const getCategories = dryFn(async (req, res, next) => {
-  const category = await Category.findAll({ order: [["id", "ASC"]] });
-
+  let objQuery = {
+    order : [["id", "ASC"]]
+  }
+  if (req.query.page) {
+    let totalRows = await Category.count();
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
+    objQuery = {...objQuery, ...pagination}
+  }
+  const category = await Category.findAll(objQuery);
   res.status(200).json({
     success: true,
     length: category.length,

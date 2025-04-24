@@ -6,6 +6,7 @@ const Category = require("../models/Category");
 const Features = require("../models/Features");
 const FeatureProduct = require("../models/FeatureProduct");
 const sq = require("../database/conn")
+const paginateQuery = require("../helpers/pagination")
 
 const getProduct = dryFn(async (req, res, next) => {
   const product = await Product.findByPk(req.params.id, {
@@ -35,7 +36,17 @@ const getProduct = dryFn(async (req, res, next) => {
 });
 
 const getProducts = dryFn(async (req, res, next) => {
-  const products = await Product.findAll({ order: [["sku", "ASC"]] });
+  let objQuery = {
+    order: [[
+      "sku", "asc"
+    ]]
+  }
+  if (req.query.page) {
+    const totalRows = await Product.count();
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
+    objQuery = { ...objQuery, ...pagination }
+  }
+  const products = await Product.findAll({ ...objQuery });
 
   res.status(200).json({
     success: true,
@@ -106,10 +117,18 @@ const deleteProduct = dryFn(async (req, res, next) => {
 });
 
 const getProductsBySubcategory = dryFn(async (req, res, next) => {
-  const pd = await Product.findAll({ where: { fk_subcategory: req.params.id }, include: [{ model: Subcategory, include: { model: Category } }, { model: FeatureProduct, include: { model: Features } }] });
-  if (pd.length == 0) {
-    return next(new GeneralError("Doesn't find any product", 404));
+  let objQuery = {
+    order: [["sku", "ASC"]]
   }
+  if (req.query.page) {
+    const totalRows = Product.count({ where: { fk_subcategory: req.params.id } })
+    if (totalRows == 0) {
+      return next(new GeneralError("Doesn't find any product", 404));
+    }
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
+    objQuery = { ...objQuery, ...pagination }
+  }
+  const pd = await Product.findAll({ ...objQuery, where: { fk_subcategory: req.params.id }, include: [{ model: Subcategory, include: { model: Category } }, { model: FeatureProduct, include: { model: Features } }] });
   res.status(200).json({
     success: true,
     data: pd

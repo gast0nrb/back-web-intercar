@@ -4,16 +4,18 @@ const dryFn = require("../middlewares/dryFn");
 const { GeneralError } = require("../helpers/classError");
 const District = require("../models/District");
 const City = require("../models/City");
+const paginateQuery = require("../helpers/pagination")
 
 const getBranches = dryFn(async (req, res, next) => {
-  let whereObj = {};
-  if (req.query.district) {
-    whereObj = {
-      fk_district: req.params.id,
-    };
+  let objQuery = {
+    order : [["id", "ASC"]]
   }
-  const branches = await Branch.findAll({
-    whereObj,
+  if (req.query.page) {
+    let totalRows = await Branch.count();
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
+    objQuery = {...objQuery, ...pagination}
+  }
+  const branches = await Branch.findAll({...objQuery,
     include: [{ model: District, include: [{ model: City }] }],
   });
   res.status(200).json({

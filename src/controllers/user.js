@@ -5,6 +5,7 @@ const { GeneralError } = require("../helpers/classError")
 const sq = require("../database/conn")
 const { comparePass, generateToken } = require("../helpers/auth")
 const bcrypt = require("bcrypt");
+const paginateQuery = require("../helpers/pagination")
 
 const logIn = dryFn(async (req, res, next) => {
     //Chequea si existe el usuario
@@ -24,7 +25,16 @@ const logIn = dryFn(async (req, res, next) => {
 })
 
 const getUsers = dryFn(async (req, res, next) => {
+    let objQuery = {
+        order : [["id", "ASC"]]
+    }
+    if(req.query.page){
+        let totalRows = await User.count();
+        const pagination = paginateQuery(totalRows, parseInt(req.query.page))
+        objQuery = {...objQuery, ...pagination}
+    }
     const users = await User.findAll({
+        ...objQuery,
         include: [
             {
                 model: Role,

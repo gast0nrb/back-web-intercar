@@ -4,9 +4,26 @@ const dryFn = require("../middlewares/dryFn");
 const { GeneralError } = require("../helpers/classError");
 const FeatureProduct = require("../models/FeatureProduct");
 const Product = require("../models/Product");
+const paginateQuery = require("../helpers/pagination");
 
 const getProductsByFeature = dryFn(async (req, res, next) => {
-  const products = await Features.findAll({
+  let objQuery = {
+    order : [["id", "ASC"]]
+  }
+  if(req.query.page){
+    const totalRows = await Product.count({
+      include : {
+        model : FeatureProduct,
+        where : {
+          fk_product : req.params.id
+        }
+      }
+    })
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page));
+    objQuery = {...objQuery, ...pagination};
+  }
+  
+  const products = await Features.findAll({...objQuery,
     where: { id: req.params.id },
     include: [{ model: FeatureProduct, include: [{ model: Product }] }],
   });

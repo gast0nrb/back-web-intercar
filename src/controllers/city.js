@@ -3,7 +3,6 @@ const dryFn = require("../middlewares/dryFn");
 const { NotFound, GeneralError } = require("../helpers/classError");
 const sq = require("../database/conn")
 
-
 const getCities = dryFn(async (req, res, next) => {
   const cities = await City.findAll({ order: [["id", "ASC"]] });
 

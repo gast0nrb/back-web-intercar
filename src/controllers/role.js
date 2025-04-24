@@ -1,6 +1,5 @@
 const Role = require("../models/Role")
 const dryFn = require("../middlewares/dryFn")
-const { GeneralError } = require("../helpers/classError")
 const sq = require("../database/conn")
 
 const getRoles = dryFn(async (req, res, next) => {
