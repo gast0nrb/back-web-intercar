@@ -3,7 +3,7 @@ const Role = require("../models/Role")
 const dryFn = require("../middlewares/dryFn")
 const { GeneralError } = require("../helpers/classError")
 const sq = require("../database/conn")
-const { comparePass, generateToken, verifyToken } = require("../helpers/auth")
+const { comparePass, generateToken } = require("../helpers/auth")
 const bcrypt = require("bcrypt");
 
 const logIn = dryFn(async (req, res, next) => {

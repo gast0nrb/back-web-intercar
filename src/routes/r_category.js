@@ -1,10 +1,11 @@
-const {createCategory, deleteCategory, getCategories, updateCategory} = require("../controllers/category")
+const { createCategory, deleteCategory, getCategories, updateCategory } = require("../controllers/category")
 const express = require("express")
-const router =  express.Router()
+const router = express.Router()
+const { protectAdmin, verifyToken, protectRoot } = require("../middlewares/authentication")
 
-router.route("/category").get(getCategories).post(createCategory)
+router.route("/category").get(getCategories).post(verifyToken, protectAdmin, createCategory)
 
-router.route("/category/:id").put(updateCategory).delete(deleteCategory)
+router.route("/category/:id").put(verifyToken, protectAdmin , updateCategory).delete(verifyToken, protectRoot, deleteCategory)
 
 
 module.exports = router;
