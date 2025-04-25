@@ -1,5 +1,3 @@
-const { GeneralError } = require("../helpers/classError");
-
 const printError = (error) => {
   console.log("----------------");
   console.log(error);
@@ -13,17 +11,31 @@ const logError = (err, req, res, next) => {
 
 const handleError = (err, req, res, next) => {
   let error = { ...err };
-
-  error.message = err.message;
-
-  //Chequear vía if el error y cambiar el error.message
-  //Chequea error.name == ''
-  //error = new GeneralError(message, 400) //Para terminar la info
+  //Errores comunes que se han identificado
+  const COMMON_ERRORS = ['SequelizeUniqueConstraintError', 'SequelizeForeignKeyConstraintError'];
+  
+  if(COMMON_ERRORS.includes(err.name)){
+    switch(err.name) {
+      case 'SequelizeUniqueConstraintError':
+        error.message = err.errors.map((e, i)=> ` ${e.message} ${i==0? '' : '| '}`)[0]
+        error.code = 'VL_UNI'
+          break;
+      case 'SequelizeForeignKeyConstraintError':
+        error.message = `Foreign key referenced doesn't exist: (${err.value})`
+        error.code = 'NOT_FK'
+          break;
+      default:
+        error.code = 'SVR_ERR'
+        error.message = 'SERVER ERROR'
+    }
+    error.statusCode = 400;
+  }
 
   return res.status(error.statusCode || 500).json({
     success: false,
     error: {
-      message: error.message || "SERVER ERROR",
+      message: error.message,
+      code : error.code
     },
   });
 };
