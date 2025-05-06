@@ -1,6 +1,7 @@
 //Thirds modules
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors")
 
 //Own modules
 const { handleError, logError } = require("./src/middlewares/errorHandler");
@@ -28,6 +29,7 @@ const ROUTE = process.env.ROUTE
 testConn();
 
 app.use(express.json())
+app.use(cors())
 
 //Rutas
 app.use(ROUTE, r_city);
