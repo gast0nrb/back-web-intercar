@@ -6,10 +6,10 @@ const Category = require("../models/Category");
 const Features = require("../models/Features");
 const FeatureProduct = require("../models/FeatureProduct");
 const sq = require("../database/conn")
-const paginateQuery = require("../helpers/pagination")
+const paginateQuery = require("../helpers/pagination");
 
 const getProduct = dryFn(async (req, res, next) => {
-  const product = await Product.findByPk(req.params.id, {
+  const product = await Product.findByPk(req.params.sku, {
     include: [
       {
         model: Subcategory,
@@ -135,11 +135,45 @@ const getProductsBySubcategory = dryFn(async (req, res, next) => {
   })
 })
 
+const getProductsByCategory = dryFn(async (req, res, next) => {
+  let objQuery = {
+    order: [["sku", "ASC"]]
+  }
+
+  if (req.query.page) {
+    const totalRows = Product.count({
+      include: [{
+        model: Subcategory, include: [
+          { model: Category, where: { id: req.params.id } }
+        ]
+      }]
+    });
+    if (totalRows == 0) {
+      return next(new GeneralError("Doesn't found any product", 404))
+    }
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page));
+    objQuery = { ...objQuery, ...pagination }
+  }
+
+  const products = await Product.findAll({
+    ...objQuery, include: [{
+      model: Subcategory, where:
+        { fk_category: req.params.id }, include: [{ model: Category }]
+    }]
+  })
+
+  res.status(200).json({
+    success: true,
+    data: products
+  })
+})
+
 module.exports = {
   createProduct,
   deleteProduct,
   updateProduct,
   getProducts,
   getProduct,
-  getProductsBySubcategory
+  getProductsBySubcategory,
+  getProductsByCategory
 };

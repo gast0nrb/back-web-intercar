@@ -1,6 +1,6 @@
 /**
  * Toma las cantidad de filas en la bd para calcular
- * Recibe el page de req.query.page
+ * Recibe el page de req.query.page (parametro entregado para saber la página que se desea desplegar)
  * Recibe el tipo de orden y el nombre por el atributo que se desea ordenar.
  */
 const paginateQuery = (totalRows, page) => {
