@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const { getProductsBySubcategory, createProduct, deleteProduct, getProducts, getProduct, updateProduct, getProductsByCategory } = require("../controllers/product")
+const { getProductsBySubcategory, createProduct, deleteProduct, getProducts, getProduct, updateProduct, getProductsByCategory , getOnSale} = require("../controllers/product")
 const { createFeatureProduct, deleteFeatureProduct, updateFeatureProduct } = require("../controllers/feature_product")
 const {verifyToken, protectAdmin, protectRoot} = require("../middlewares/authentication")
 
@@ -8,6 +8,8 @@ const {verifyToken, protectAdmin, protectRoot} = require("../middlewares/authent
 router.route("/products").get(getProducts).post(verifyToken,protectAdmin,createProduct)
 
 router.route("/products/:sku").get(getProduct).put(verifyToken,protectAdmin,updateProduct).delete(verifyToken, protectRoot,deleteProduct)
+
+router.route("/onsale/products").get(getOnSale)
 
 //filter by subcategory
 router.route("/subcategory/:id/products").get(getProductsBySubcategory)

@@ -38,7 +38,7 @@ const getProduct = dryFn(async (req, res, next) => {
 const getProducts = dryFn(async (req, res, next) => {
   let objQuery = {
     order: [[
-      "sku", "asc"
+      "sku", "ASC"
     ]]
   }
   if (req.query.page) {
@@ -168,6 +168,31 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
   })
 })
 
+const getOnSale = dryFn(async (req,res, next) => {
+  let objQuery = {
+    order: [["sku", "ASC"]]
+  };
+
+  if (req.query.page) {
+    const totalRows = await Product.count({
+      where: { onsale: true },
+      include: [{ model: Subcategory, include: [{ model: Category }] }]
+    })
+    console.log(totalRows)
+    if (totalRows == 0) {
+      return next(new GeneralError("Doesn't found any product", 404))
+    }
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
+    objQuery = { ...objQuery, ...pagination }
+  }
+
+  const products = await Product.findAll({ ...objQuery, where: { onsale: true }, include: [{ model: Subcategory, include: [{ model: Category }] }] })
+
+  res.status(200).json({
+    success: true, data: products
+  })
+});
+
 module.exports = {
   createProduct,
   deleteProduct,
@@ -175,5 +200,6 @@ module.exports = {
   getProducts,
   getProduct,
   getProductsBySubcategory,
-  getProductsByCategory
+  getProductsByCategory,
+  getOnSale
 };
