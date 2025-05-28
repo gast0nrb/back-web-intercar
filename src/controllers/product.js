@@ -7,6 +7,7 @@ const Features = require("../models/Features");
 const FeatureProduct = require("../models/FeatureProduct");
 const sq = require("../database/conn")
 const paginateQuery = require("../helpers/pagination");
+const { Op } = require("sequelize");
 
 const getProduct = dryFn(async (req, res, next) => {
   const product = await Product.findByPk(req.params.sku, {
@@ -36,6 +37,7 @@ const getProduct = dryFn(async (req, res, next) => {
 });
 
 const getProducts = dryFn(async (req, res, next) => {
+  let whereObj;
   let objQuery = {
     order: [[
       "sku", "ASC"
@@ -45,8 +47,21 @@ const getProducts = dryFn(async (req, res, next) => {
     const totalRows = await Product.count();
     const pagination = paginateQuery(totalRows, parseInt(req.query.page))
     objQuery = { ...objQuery, ...pagination }
+    console.log(objQuery)
   }
-  const products = await Product.findAll({ ...objQuery });
+  if(req.query.text) {
+    whereObj = {
+      where : {
+        [Op.or] : {
+          sku : { [Op.like] : `%${req.query.text}%`},
+          title : { [Op.like] : `%${req.query.text}%`},
+          description : { [Op.like] : `%${req.query.text}%`},
+        }
+      }
+    };
+
+  }
+  const products = await Product.findAll({  ...whereObj, ...objQuery });
 
   res.status(200).json({
     success: true,
