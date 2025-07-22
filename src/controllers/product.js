@@ -49,19 +49,19 @@ const getProducts = dryFn(async (req, res, next) => {
     objQuery = { ...objQuery, ...pagination }
     console.log(objQuery)
   }
-  if(req.query.text) {
+  if (req.query.text) {
     whereObj = {
-      where : {
-        [Op.or] : {
-          sku : { [Op.like] : `%${req.query.text}%`},
-          title : { [Op.like] : `%${req.query.text}%`},
-          description : { [Op.like] : `%${req.query.text}%`},
+      where: {
+        [Op.or]: {
+          sku: { [Op.like]: `%${req.query.text}%` },
+          title: { [Op.like]: `%${req.query.text}%` },
+          description: { [Op.like]: `%${req.query.text}%` },
         }
       }
     };
 
   }
-  const products = await Product.findAll({  ...whereObj, ...objQuery });
+  const products = await Product.findAll({ ...whereObj, ...objQuery });
 
   res.status(200).json({
     success: true,
@@ -150,6 +150,8 @@ const getProductsBySubcategory = dryFn(async (req, res, next) => {
   })
 })
 
+/*Si pasa en el req.query.subcategory un id de subcategoria actual envia los productos x subcategoria
+Esto en busca de utilizar solamente un url en front-end */
 const getProductsByCategory = dryFn(async (req, res, next) => {
   let objQuery = {
     order: [["sku", "ASC"]]
@@ -168,7 +170,7 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
     }
     const pagination = paginateQuery(totalRows, parseInt(req.query.page));
     objQuery = { ...objQuery, ...pagination }
-  }
+  };
 
   const products = await Product.findAll({
     ...objQuery, include: [{
@@ -183,7 +185,7 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
   })
 })
 
-const getOnSale = dryFn(async (req,res, next) => {
+const getOnSale = dryFn(async (req, res, next) => {
   let objQuery = {
     order: [["sku", "ASC"]]
   };
@@ -208,6 +210,33 @@ const getOnSale = dryFn(async (req,res, next) => {
   })
 });
 
+//Create photo for a product
+const createPhoto = dryFn(async(req ,res , next)=> {
+  if(!req.file) {
+    return next(new GeneralError("No file uploaded", 400));
+  }
+  const validateProduct = await Product.findByPk(req.params.id)
+  if(!validateProduct) {
+    return next(new GeneralError("Product not found", 404));
+  }
+  const t = sq.transaction(async()=> {
+    const product = await Product.update({file : req.file.filename}, {
+      where: { sku: req.params.id }
+    } ); 
+    res.status(200).json({
+      success: true,
+      data: {
+        filename: req.file.filename,
+        message: "Image uploaded successfully"
+      }
+    });
+    //Return from transaction
+    return product;
+  }).catch((e) => {
+    next(e);
+  })
+})
+
 module.exports = {
   createProduct,
   deleteProduct,
@@ -216,5 +245,6 @@ module.exports = {
   getProduct,
   getProductsBySubcategory,
   getProductsByCategory,
-  getOnSale
+  getOnSale,
+  createPhoto
 };

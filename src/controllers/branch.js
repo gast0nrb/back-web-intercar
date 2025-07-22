@@ -6,6 +6,14 @@ const District = require("../models/District");
 const City = require("../models/City");
 const paginateQuery = require("../helpers/pagination")
 
+const createImageBranch = dryFn(async(req, res, next)=> {})
+
+const updateImageBranch = dryFn(async(req, res, next)=> {})
+
+const deleteImageBranch = dryFn(async(req, res, next)=> {})
+
+const getImageBranch = dryFn(async(req, res, next)=> {})
+
 const getBranches = dryFn(async (req, res, next) => {
   let objQuery = {
     order : [["id", "ASC"]]

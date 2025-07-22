@@ -2,6 +2,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors")
+const helmet = require("helmet")
+const path = require("path")
+const fs = require("fs")
 
 //Own modules
 const { handleError, logError } = require("./src/middlewares/errorHandler");
@@ -29,7 +32,15 @@ const ROUTE = process.env.ROUTE
 testConn();
 
 app.use(express.json())
+app.use(helmet())
 app.use(cors())
+
+//Creación de directorio para guardar files
+const uploadDir = path.join(__dirname, '../secure-uploads/')
+if(!fs.existsSync(uploadDir)){
+	fs.mkdirSync(uploadDir, { recursive: true, mode: 0o755 });
+}
+
 
 //Rutas
 app.use(ROUTE, r_city);
