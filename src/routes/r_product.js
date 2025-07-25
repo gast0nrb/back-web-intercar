@@ -5,6 +5,7 @@ const path = require("path")
 const { getPhoto,createPhoto,getProductsBySubcategory, createProduct, deleteProduct, getProducts, getProduct, updateProduct, getProductsByCategory, getOnSale } = require("../controllers/product")
 const { createFeatureProduct, deleteFeatureProduct, updateFeatureProduct } = require("../controllers/feature_product")
 const { verifyToken, protectAdmin, protectRoot } = require("../middlewares/authentication")
+const Product = require("../models/Product")
 
 
 //Products router
@@ -24,7 +25,22 @@ const storage = multer.diskStorage({
     }
 })
 
-const upload = multer({ storage })
+const fileFilterProduct = async (req, file, cb) => {
+  // Check if the file is an image
+  const allowedTypes = ["jpeg", "png", "gif", "jpg"];
+  const fileType = file.mimetype.split("/")[1];
+  if (!allowedTypes.includes(fileType)) {
+    return cb(new GeneralError("Only images are allowed", 500), false)
+  }
+  const checkProduct = await Product.findByPk(req.params.id);
+  if (!checkProduct) {
+    return cb(new GeneralError("Product not found", 404), false)
+  } else {
+    cb(null, true)
+  }
+}
+
+const upload = multer({ storage, fileFilter: fileFilterProduct })
 
 //Create a photo for a product
 router.route("/products/:id/upload").post(upload.single("image"), createPhoto)
