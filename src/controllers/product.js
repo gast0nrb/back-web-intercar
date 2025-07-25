@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const path = require("path");
 const dryFn = require("../middlewares/dryFn");
 const { NotFound, GeneralError } = require("../helpers/classError");
 const Subcategory = require("../models/Subcategory");
@@ -210,19 +211,37 @@ const getOnSale = dryFn(async (req, res, next) => {
   })
 });
 
+
+const getPhoto = dryFn(async (req, res, next) => {
+  if (!req.params.id) {
+    return next(new GeneralError("No product id provided", 400));
+  }
+  const product = await Product.findByPk(req.params.id);
+  if (!product) {
+    return next(new GeneralError("Product not found", 404));
+  }
+  const urlPath = path.join(__dirname, `../uploads/products/${product.file}`);
+  console.log(urlPath);
+  res.sendFile(urlPath, (err) => {
+    if (err) {
+      return next(new GeneralError("Error retrieving image", 500));
+    }
+  });
+});
+
 //Create photo for a product
-const createPhoto = dryFn(async(req ,res , next)=> {
-  if(!req.file) {
+const createPhoto = dryFn(async (req, res, next) => {
+  if (!req.file) {
     return next(new GeneralError("No file uploaded", 400));
   }
   const validateProduct = await Product.findByPk(req.params.id)
-  if(!validateProduct) {
+  if (!validateProduct) {
     return next(new GeneralError("Product not found", 404));
   }
-  const t = sq.transaction(async()=> {
-    const product = await Product.update({file : req.file.filename}, {
+  const t = sq.transaction(async () => {
+    const product = await Product.update({ file: `${req.file.filename}`}, {
       where: { sku: req.params.id }
-    } ); 
+    });
     res.status(200).json({
       success: true,
       data: {
@@ -246,5 +265,6 @@ module.exports = {
   getProductsBySubcategory,
   getProductsByCategory,
   getOnSale,
-  createPhoto
+  createPhoto,
+  getPhoto
 };

@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const multer = require("multer")
 const path = require("path")
-const { createPhoto,getProductsBySubcategory, createProduct, deleteProduct, getProducts, getProduct, updateProduct, getProductsByCategory, getOnSale } = require("../controllers/product")
+const { getPhoto,createPhoto,getProductsBySubcategory, createProduct, deleteProduct, getProducts, getProduct, updateProduct, getProductsByCategory, getOnSale } = require("../controllers/product")
 const { createFeatureProduct, deleteFeatureProduct, updateFeatureProduct } = require("../controllers/feature_product")
 const { verifyToken, protectAdmin, protectRoot } = require("../middlewares/authentication")
 
@@ -28,6 +28,7 @@ const upload = multer({ storage })
 
 //Create a photo for a product
 router.route("/products/:id/upload").post(upload.single("image"), createPhoto)
+router.route("/products/:id/photo").get(getPhoto)
 
 //filter by subcategory
 router.route("/subcategory/:id/products").get(getProductsBySubcategory)
