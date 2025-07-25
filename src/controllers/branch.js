@@ -5,8 +5,23 @@ const { GeneralError } = require("../helpers/classError");
 const District = require("../models/District");
 const City = require("../models/City");
 const paginateQuery = require("../helpers/pagination")
+const path = require("path")
 
-const createImageBranch = dryFn(async(req, res, next)=> {})
+const createImageBranch = dryFn(async(req, res, next)=> {
+  if(!req.file){
+    return next(new GeneralError("No file uploaded", 400));
+  }
+  const validateBranch = await Branch.findByPk(req.params.id)
+  if(!validateBranch){
+    //Realizar el remove desde acá si es que el brach no existe
+    return next(new GeneralError("Branch not found", 404))
+  }
+  const t = sq.transaction(async()=> {
+    const branch = await Branch.update({url : req.file.filename}, {where : {id : req.params.id}})
+    res.status(200).json({success : true, data : {filename : req.file.filename, message : "Image uploaded successfully"}})
+  return branch
+  }).catch((e)=> next(e))
+})
 
 const updateImageBranch = dryFn(async(req, res, next)=> {})
 
@@ -106,4 +121,5 @@ module.exports = {
   updateBranch,
   deleteBranch,
   getBranch,
+  createImageBranch 
 };
