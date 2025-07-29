@@ -27,7 +27,21 @@ const updateImageBranch = dryFn(async(req, res, next)=> {})
 
 const deleteImageBranch = dryFn(async(req, res, next)=> {})
 
-const getImageBranch = dryFn(async(req, res, next)=> {})
+const getImageBranch = dryFn(async(req, res, next)=> {
+  if(!req.params.id){
+    return next(new GeneralError("No branch id provided", 400));
+  }
+  const branch = await Branch.findByPk(req.params.id);
+  if(!branch){
+    return next(new GeneralError("Branch not found", 404));
+  }
+  const urlPath = path.join(__dirname, `../uploads/branches/${branch.url}`);
+  res.sendFile(urlPath, (err) => {
+    if (err) {
+      return next(new GeneralError("Error retrieving image", 500));
+    }
+  });
+})
 
 const getBranches = dryFn(async (req, res, next) => {
   let objQuery = {
@@ -121,5 +135,6 @@ module.exports = {
   updateBranch,
   deleteBranch,
   getBranch,
-  createImageBranch 
+  createImageBranch ,
+  getImageBranch
 };
