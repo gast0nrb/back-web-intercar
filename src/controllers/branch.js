@@ -6,6 +6,8 @@ const District = require("../models/District");
 const City = require("../models/City");
 const paginateQuery = require("../helpers/pagination")
 const path = require("path")
+const fs = require("fs");
+const { CLIENT_RENEG_LIMIT } = require("tls");
 
 const createImageBranch = dryFn(async(req, res, next)=> {
   if(!req.file){
@@ -23,9 +25,23 @@ const createImageBranch = dryFn(async(req, res, next)=> {
   }).catch((e)=> next(e))
 })
 
-const updateImageBranch = dryFn(async(req, res, next)=> {})
-
-const deleteImageBranch = dryFn(async(req, res, next)=> {})
+const deleteImageBranch = dryFn(async(req, res, next)=> {
+  const branch = await Branch.findByPk(req.params.id);
+  if (!branch) {
+    return next(new GeneralError("Branch not found", 404));
+  }
+  const filePath = path.join(__dirname, `../uploads/branches/${branch.url}`);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+  sq.transaction(async(t)=> {
+  const branch = await Branch.update({ url: "defaultImage.png" }, { where: { id: req.params.id } });
+  res.status(200).json({ success: true, data: "Image deleted successfully" });
+  return branch
+  }).catch((e) => {
+    next(e);
+  });
+});
 
 const getImageBranch = dryFn(async(req, res, next)=> {
   if(!req.params.id){
@@ -136,5 +152,6 @@ module.exports = {
   deleteBranch,
   getBranch,
   createImageBranch ,
-  getImageBranch
+  getImageBranch,
+  deleteImageBranch
 };

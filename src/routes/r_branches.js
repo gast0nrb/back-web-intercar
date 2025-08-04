@@ -9,7 +9,8 @@ const {
   deleteBranch,
   getBranch,
   createImageBranch,
-  getImageBranch
+  getImageBranch,
+  deleteImageBranch
 } = require("../controllers/branch");
 const { protectAdmin, verifyToken } = require("../middlewares/authentication")
 const Branch = require("../models/Branch");
@@ -31,6 +32,7 @@ const fileFilterBranch = async (req, file, cb) => {
   }
 }
 
+
 //File routes for branches
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -46,7 +48,8 @@ const uploadBranches = multer({ storage, fileFilter: fileFilterBranch })
 
 //Routes to get image from branch
 router.route("/branch/:id/photo").get(getImageBranch);
-router.route("/branch/:id/upload").post(uploadBranches.single("image"), createImageBranch)
+router.route("/branch/:id/upload").post(uploadBranches.single("image"), createImageBranch);
+router.route("/branch/:id/delete").delete(deleteImageBranch);
 
 router.route("/branch").get(getBranches).post(verifyToken, protectAdmin, createBranch);
 router.route("/branch/:id").get(getBranch).put(verifyToken, protectAdmin, updateBranch).delete(verifyToken, protectAdmin, deleteBranch);

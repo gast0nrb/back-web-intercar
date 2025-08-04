@@ -9,6 +9,8 @@ const FeatureProduct = require("../models/FeatureProduct");
 const sq = require("../database/conn")
 const paginateQuery = require("../helpers/pagination");
 const { Op } = require("sequelize");
+const fs = require("fs");
+
 
 const getProduct = dryFn(async (req, res, next) => {
   const product = await Product.findByPk(req.params.sku, {
@@ -221,7 +223,6 @@ const getPhoto = dryFn(async (req, res, next) => {
     return next(new GeneralError("Product not found", 404));
   }
   const urlPath = path.join(__dirname, `../uploads/products/${product.file}`);
-  console.log(urlPath);
   res.sendFile(urlPath, (err) => {
     if (err) {
       return next(new GeneralError("Error retrieving image", 500));
@@ -256,6 +257,24 @@ const createPhoto = dryFn(async (req, res, next) => {
   })
 })
 
+const deletePhotoProduct = dryFn(async (req, res, next) => {
+  const product = await Product.findByPk(req.params.id);
+  if (!product) {
+    return next(new GeneralError("Product not found", 404));
+  }
+  const filePath = path.join(__dirname, `../uploads/products/${product.file}`);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+  sq.transaction(async () => {
+    const product = await Product.update({ file: "defaultImage.png" }, { where: { sku: req.params.id } });
+    res.status(200).json({ success: true, data: "Image deleted successfully" });
+    return product;
+  }).catch((e) => {
+    next(e);
+  });
+});
+
 module.exports = {
   createProduct,
   deleteProduct,
@@ -266,5 +285,6 @@ module.exports = {
   getProductsByCategory,
   getOnSale,
   createPhoto,
-  getPhoto
+  getPhoto,
+  deletePhotoProduct
 };
