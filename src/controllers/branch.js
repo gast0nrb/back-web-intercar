@@ -53,6 +53,7 @@ const getImageBranch = dryFn(async(req, res, next)=> {
   }
   const urlPath = path.join(__dirname, `../uploads/branches/${branch.url}`);
   res.sendFile(urlPath, (err) => {
+//Chequear si no existe la imagen para enviar una diferente
     if (err) {
       return next(new GeneralError("Error retrieving image", 500));
     }
