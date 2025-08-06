@@ -64,7 +64,7 @@ const getProducts = dryFn(async (req, res, next) => {
     };
 
   }
-  const products = await Product.findAll({ ...whereObj, ...objQuery });
+  const products = await Product.findAll({ ...whereObj, ...objQuery , include: [{model : Subcategory}]});
 
   res.status(200).json({
     success: true,
