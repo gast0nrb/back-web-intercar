@@ -211,7 +211,7 @@ const getOnSale = dryFn(async (req, res, next) => {
   const products = await Product.findAll({ ...objQuery, where: { onsale: true }, include: [{ model: Subcategory, include: [{ model: Category }] }] })
 
   res.status(200).json({
-    success: true, data: products
+    success: true, length : products.length, data: products
   })
 });
 
