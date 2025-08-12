@@ -46,12 +46,6 @@ const getProducts = dryFn(async (req, res, next) => {
       "sku", "ASC"
     ]]
   }
-  if (req.query.page) {
-    const totalRows = await Product.count();
-    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
-    objQuery = { ...objQuery, ...pagination }
-    console.log(objQuery)
-  }
   if (req.query.text) {
     whereObj = {
       where: {
@@ -64,11 +58,16 @@ const getProducts = dryFn(async (req, res, next) => {
     };
 
   }
-  const products = await Product.findAll({ ...whereObj, ...objQuery , include: [{model : Subcategory}]});
+  const totalRows = await Product.count({ ...whereObj });
+  if (req.query.page) {
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
+    objQuery = { ...objQuery, ...pagination }
+  }
+  const products = await Product.findAll({ ...whereObj, ...objQuery, include: [{ model: Subcategory }] });
 
   res.status(200).json({
     success: true,
-    length: products.length,
+    length: totalRows,
     data: products,
   });
 });
@@ -138,8 +137,8 @@ const getProductsBySubcategory = dryFn(async (req, res, next) => {
   let objQuery = {
     order: [["sku", "ASC"]]
   }
+  const totalRows = await Product.count({ where: { fk_subcategory: req.params.id } })
   if (req.query.page) {
-    const totalRows = Product.count({ where: { fk_subcategory: req.params.id } })
     if (totalRows == 0) {
       return next(new GeneralError("Doesn't find any product", 404));
     }
@@ -149,7 +148,7 @@ const getProductsBySubcategory = dryFn(async (req, res, next) => {
   const pd = await Product.findAll({ ...objQuery, where: { fk_subcategory: req.params.id }, include: [{ model: Subcategory, include: { model: Category } }, { model: FeatureProduct, include: { model: Features } }] });
   res.status(200).json({
     success: true,
-    length: pd.length,
+    length: totalRows,
     data: pd
   })
 })
@@ -160,15 +159,14 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
   let objQuery = {
     order: [["sku", "ASC"]]
   }
-
+  const totalRows = await Product.count({
+    include: [{
+      model: Subcategory, include: [
+        { model: Category, where: { id: req.params.id } }
+      ]
+    }]
+  });
   if (req.query.page) {
-    const totalRows = Product.count({
-      include: [{
-        model: Subcategory, include: [
-          { model: Category, where: { id: req.params.id } }
-        ]
-      }]
-    });
     if (totalRows == 0) {
       return next(new GeneralError("Doesn't found any product", 404))
     }
@@ -182,10 +180,9 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
         { fk_category: req.params.id }, include: [{ model: Category }]
     }]
   })
-
   res.status(200).json({
     success: true,
-    length: products.length,
+    length: totalRows,
     data: products
   })
 })
@@ -200,7 +197,6 @@ const getOnSale = dryFn(async (req, res, next) => {
       where: { onsale: true },
       include: [{ model: Subcategory, include: [{ model: Category }] }]
     })
-    console.log(totalRows)
     if (totalRows == 0) {
       return next(new GeneralError("Doesn't found any product", 404))
     }
@@ -211,7 +207,7 @@ const getOnSale = dryFn(async (req, res, next) => {
   const products = await Product.findAll({ ...objQuery, where: { onsale: true }, include: [{ model: Subcategory, include: [{ model: Category }] }] })
 
   res.status(200).json({
-    success: true, length : products.length, data: products
+    success: true, length: products.length, data: products
   })
 });
 
@@ -242,7 +238,7 @@ const createPhoto = dryFn(async (req, res, next) => {
     return next(new GeneralError("Product not found", 404));
   }
   const t = sq.transaction(async () => {
-    const product = await Product.update({ file: `${req.file.filename}`}, {
+    const product = await Product.update({ file: `${req.file.filename}` }, {
       where: { sku: req.params.id }
     });
     res.status(200).json({

@@ -1,0 +1,19 @@
+---
+const { pages } = Astro.props;
+const pageOptions = [];
+if (!pages || pages <= 0) {
+    pageOptions.push(1); // Default to one page if no pages are provided or if pages is 0
+} else {
+    const totalPages = Math.ceil(pages / 10); // Assuming each page shows 10 items
+    pageOptions.push(...Array.from({ length: totalPages }, (_, i) => i + 1));
+}
+---
+
+<form action="/busqueda" method="POST">
+    <select
+        class="flex mx-auto w-fit bg-neutral-200 px-3 rounded-xs text-center text-black mt-10"
+        onchange="this.form.submit()"
+    >
+        {pageOptions.map((page) => <option value={page}>{page}</option>)}
+    </select>
+</form>
