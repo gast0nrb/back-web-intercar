@@ -148,6 +148,7 @@ const getProductsBySubcategory = dryFn(async (req, res, next) => {
   const pd = await Product.findAll({ ...objQuery, where: { fk_subcategory: req.params.id }, include: [{ model: Subcategory, include: { model: Category } }, { model: FeatureProduct, include: { model: Features } }] });
   res.status(200).json({
     success: true,
+    subcategoryId : req.params.id,
     length: totalRows,
     data: pd
   })
@@ -182,6 +183,7 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
   })
   res.status(200).json({
     success: true,
+    categoryId: req.params.id,
     length: totalRows,
     data: products
   })
