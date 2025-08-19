@@ -59,6 +59,9 @@ const getProducts = dryFn(async (req, res, next) => {
 
   }
   const totalRows = await Product.count({ ...whereObj });
+  if(totalRows === 0){
+    return next(new GeneralError("Doesn't find any product", 404));
+  }
   if (req.query.page) {
     const pagination = paginateQuery(totalRows, parseInt(req.query.page))
     objQuery = { ...objQuery, ...pagination }
