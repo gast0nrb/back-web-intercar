@@ -20,6 +20,7 @@ const r_feature = require("./src/routes/r_feature")
 const r_user = require("./src/routes/r_user")
 const r_role = require("./src/routes/r_role")
 const r_district = require("./src/routes/r_district");
+const r_contacts = require("./src/routes/r_contacts")
 
 const app = express();
 
