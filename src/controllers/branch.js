@@ -64,14 +64,21 @@ const getBranches = dryFn(async (req, res, next) => {
   let objQuery = {
     order : [["id", "ASC"]]
   }
+
   if (req.query.page) {
     let totalRows = await Branch.count();
     const pagination = paginateQuery(totalRows, parseInt(req.query.page))
     objQuery = {...objQuery, ...pagination}
   }
+
   const branches = await Branch.findAll({...objQuery,
     include: [{ model: District, include: [{ model: City }] }],
   });
+
+   if(branches.length == 0){
+      return next(new GeneralError("Branches doesn't found", 404));
+   }
+
   res.status(200).json({
     success: true,
     length: branches.length,

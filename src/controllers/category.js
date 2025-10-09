@@ -14,6 +14,9 @@ const getCategories = dryFn(async (req, res, next) => {
     objQuery = {...objQuery, ...pagination}
   }
   const category = await Category.findAll(objQuery);
+  if(category.length == 0){
+      return next(new GeneralError('Categories not found', 404));
+  }
   res.status(200).json({
     success: true,
     length: category.length,
