@@ -6,17 +6,25 @@ const paginateQuery =  require("../helpers/pagination.js")
 
 const getCategories = dryFn(async (req, res, next) => {
   let objQuery = {
-    order : [["id", "ASC"]]
+    order : [["id"]]
   }
+   if(req.query.sort){
+       objQuery = {
+         order : ["name"]
+       }
+   }
+
   if (req.query.page) {
     let totalRows = await Category.count();
     const pagination = paginateQuery(totalRows, parseInt(req.query.page))
     objQuery = {...objQuery, ...pagination}
   }
-  const category = await Category.findAll(objQuery);
+  const category = await Category.findAll({...objQuery});
+
   if(category.length == 0){
       return next(new GeneralError('Categories not found', 404));
   }
+
   res.status(200).json({
     success: true,
     length: category.length,
