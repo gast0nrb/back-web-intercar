@@ -2,7 +2,10 @@ const express = require("express")
 const router = express.Router()
 const multer = require("multer")
 const path = require("path")
-const { deletePhotoProduct,  getPhoto,createPhoto,getProductsBySubcategory, createProduct, deleteProduct, getProducts, getProduct, updateProduct, getProductsByCategory, getOnSale } = require("../controllers/product")
+const { deletePhotoProduct,  getPhoto,createPhoto,
+      createProduct, deleteProduct, getProducts,
+      getProduct, updateProduct, getOnSale,
+      getProductsBySubcategory} = require("../controllers/product")
 const { createFeatureProduct, deleteFeatureProduct, updateFeatureProduct } = require("../controllers/feature_product")
 const { verifyToken, protectAdmin, protectRoot } = require("../middlewares/authentication")
 const Product = require("../models/Product")
@@ -14,6 +17,8 @@ router.route("/products").get(getProducts).post(verifyToken, protectAdmin, creat
 router.route("/products/:sku").get(getProduct).put(verifyToken, protectAdmin, updateProduct).delete(verifyToken, protectRoot, deleteProduct)
 
 router.route("/onsale/products").get(getOnSale)
+
+router.route("/subcategory/:id_subcategory").get(getProductsBySubcategory)
 
 //File routes
 const storage = multer.diskStorage({
@@ -47,13 +52,8 @@ router.route("/products/:id/upload").post(upload.single("image"), createPhoto)
 router.route("/products/:id/photo").get(getPhoto)
 router.route("/products/:id/delete").delete(verifyToken, protectAdmin, deletePhotoProduct)
 
-//filter by subcategory
-router.route("/subcategory/:id/products").get(getProductsBySubcategory)
-
-//filter by category
-router.route("/category/:id/products").get(getProductsByCategory)
-
 //feature-product router
+//deprecated?
 router.route("/feature/:fk_feature/product/:fk_product").put(verifyToken, protectAdmin, updateFeatureProduct).delete(verifyToken, protectAdmin, deleteFeatureProduct)
 router.route("/features/product").post(verifyToken, protectAdmin, createFeatureProduct);
 

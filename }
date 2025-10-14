@@ -11,43 +11,6 @@ const paginateQuery = require("../helpers/pagination");
 const { Op } = require("sequelize");
 const fs = require("fs");
 
-/*
-ENDPOINT : /subcategory/:id_subcategory"
-FRONT : 'categoria/id_category?subcategory=1' // Si no se entrega la subcategory darla por default
-router.route("/subcategory/:id_subcategory").get(getProductsByCategories)
-*/
-const getProductsBySubcategory = dryFn(async(req, res, next)=> {
-   let objQuery = {
-      order : [["sku", "ASC"]]
-   };
-   if(req.query.sort && req.query.sort == 'name'){
-      objQuery = { order  : [req.query.sort, "ASC"] }
-   };
-
-   const totalRows = await Product.count({
-      where : {
-         fk_subcategory : req.params.id_subcategory
-      }
-   });
-
-  if(totalRows === 0){
-    return next(new GeneralError("Doesn't find any product", 404));
-  }
-
-  if (req.query.page) {
-    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
-    objQuery = { ...objQuery, ...pagination }
-  }
-
-  const products = await Product.findAll({ where : {fk_subcategory : req.params.id_subcategory}, ...objQuery, include: [{ model: Subcategory, include : {model : Category} }] });
-
-  res.status(200).json({
-    success: true,
-    length: totalRows,
-    data: products,
-  });
-});
-
 
 const getProduct = dryFn(async (req, res, next) => {
   const product = await Product.findByPk(req.params.sku, {
@@ -173,8 +136,27 @@ const deleteProduct = dryFn(async (req, res, next) => {
     .catch((e) => next(e));
 });
 
+const getProductsBySubcategory = dryFn(async (req, res, next) => {
+  let objQuery = {
+    order: [["sku", "ASC"]]
+  }
+  const totalRows = await Product.count({ where: { fk_subcategory: req.params.id } })
+  if (req.query.page) {
+    if (totalRows == 0) {
+      return next(new GeneralError("Doesn't find any product", 404));
+    }
+    const pagination = paginateQuery(totalRows, parseInt(req.query.page))
+    objQuery = { ...objQuery, ...pagination }
+  }
+  const pd = await Product.findAll({ ...objQuery, where: { fk_subcategory: req.params.id }, include: [{ model: Subcategory, include: { model: Category } }, { model: FeatureProduct, include: { model: Features } }] });
+  res.status(200).json({
+    success: true,
+    subcategoryId : req.params.id,
+    length: totalRows,
+    data: pd
+  })
+})
 
-/*Borrar endpoint*/
 /*Si pasa en el req.query.subcategory un id de subcategoria actual envia los productos x subcategoria
 Esto en busca de utilizar solamente un url en front-end */
 const getProductsByCategory = dryFn(async (req, res, next) => {
@@ -182,7 +164,24 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
     order: [["sku", "ASC"]]
   }
   
-  const totalRows = await Product.count({include : {model : Subcategory}});
+  let includeSubcategory = {};
+  if(req.query.subcategory){
+   includeSubcategory = {
+      include : [{
+         model : Subcategory, where : { id : req.query.subcategory }
+      }]
+   };
+  };
+
+  const totalRows = await Product.count({
+    include: [{
+      model: Subcategory, include: [
+        { model: Category, where: { id: req.params.id }
+       //    , ...includeSubcategory 
+        }
+      ]
+    }]
+  });
 
   if (req.query.page) {
     if (totalRows == 0) {
@@ -192,19 +191,14 @@ const getProductsByCategory = dryFn(async (req, res, next) => {
     objQuery = { ...objQuery, ...pagination }
   };
 
-   const newProducts =  await Product.findAll({...objQuery, include : {
-      model : Subcategory, where : {
-         id : req.params.id,
-         include : {model : Category}
-      }
-   }});
+   const newProducts =  await Product.findAll();
 
   const products = await Product.findAll({
     ...objQuery, include: [{
          model: Subcategory, where:
-        { fk_category: req.params.id }, 
-         include: { model: Category
-        }
+        { fk_category: req.params.id }, include: [{ model: Category
+         //  , ...includeSubcategory
+        }]
     }]
   });
 
@@ -308,9 +302,10 @@ module.exports = {
   updateProduct,
   getProducts,
   getProduct,
+  getProductsBySubcategory,
+  getProductsByCategory,
   getOnSale,
   createPhoto,
   getPhoto,
-  deletePhotoProduct,
-  getProductsBySubcategory
+  deletePhotoProduct
 };

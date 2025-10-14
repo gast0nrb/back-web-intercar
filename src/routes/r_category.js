@@ -1,4 +1,4 @@
-const { createCategory, deleteCategory, getCategories, updateCategory } = require("../controllers/category")
+const { createCategory, deleteCategory, getCategories, updateCategory} = require("../controllers/category")
 const express = require("express")
 const router = express.Router()
 const { protectAdmin, verifyToken, protectRoot } = require("../middlewares/authentication")
