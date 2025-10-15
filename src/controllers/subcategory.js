@@ -73,15 +73,17 @@ const getSubcategoriesByCategory = dryFn(async (req, res, next) => {
         const pagination = paginateQuery(totalRows, parseInt(req.query.page))
         objQuery = { ...objQuery, ...pagination }
     }
+      
     const subcategories = await Subcategory.findAll({
         ...objQuery,
         where: {
             fk_category: req.params.id,
-        }, include: { model: Category }
-    })
+        }});
+
     if (subcategories.length == 0) {
         return next(new GeneralError("Doesn't find any subcategory with id:" + req.params.id, 404));
     }
+
     res.status(200).json({
         success: true,
         data: subcategories
