@@ -103,7 +103,7 @@ const getProducts = dryFn(async (req, res, next) => {
     const pagination = paginateQuery(totalRows, parseInt(req.query.page))
     objQuery = { ...objQuery, ...pagination }
   }
-  const products = await Product.findAll({ ...whereObj, ...objQuery, include: [{ model: Subcategory }] });
+  const products = await Product.findAll({ ...whereObj, ...objQuery, include: [{ model: Subcategory, include : {model : Category} }] });
 
   res.status(200).json({
     success: true,
@@ -172,49 +172,6 @@ const deleteProduct = dryFn(async (req, res, next) => {
     })
     .catch((e) => next(e));
 });
-
-
-/*Borrar endpoint*/
-/*Si pasa en el req.query.subcategory un id de subcategoria actual envia los productos x subcategoria
-Esto en busca de utilizar solamente un url en front-end */
-const getProductsByCategory = dryFn(async (req, res, next) => {
-  let objQuery = {
-    order: [["sku", "ASC"]]
-  }
-  
-  const totalRows = await Product.count({include : {model : Subcategory}});
-
-  if (req.query.page) {
-    if (totalRows == 0) {
-      return next(new GeneralError("Doesn't found any product", 404))
-    }
-    const pagination = paginateQuery(totalRows, parseInt(req.query.page));
-    objQuery = { ...objQuery, ...pagination }
-  };
-
-   const newProducts =  await Product.findAll({...objQuery, include : {
-      model : Subcategory, where : {
-         id : req.params.id,
-         include : {model : Category}
-      }
-   }});
-
-  const products = await Product.findAll({
-    ...objQuery, include: [{
-         model: Subcategory, where:
-        { fk_category: req.params.id }, 
-         include: { model: Category
-        }
-    }]
-  });
-
-  res.status(200).json({
-    success: true,
-    categoryId: req.params.id,
-    length: totalRows,
-    data: newProducts
-  })
-})
 
 const getOnSale = dryFn(async (req, res, next) => {
   let objQuery = {
