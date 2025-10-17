@@ -9,6 +9,10 @@ const Contact = sq.define('CONTACT', {
     unique : true,
     allowNull : false
   },
+   topic : {
+      type : DataTypes.STRING(200),
+      allowNull : false,
+   },
   mail : {
     type: DataTypes.STRING(200),
     allowNull : false,
@@ -33,7 +37,7 @@ const Contact = sq.define('CONTACT', {
   active : {
     type : DataTypes.BOOLEAN,
     defaultValue : false
-  }
+  },
 }, {timestamps : true});
 
 module.exports = Contact;

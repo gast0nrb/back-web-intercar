@@ -20,7 +20,7 @@ const User = sq.define("USER", {
         type: DataTypes.STRING,
         allowNull: false,
     },
-},{freezeTableName: true, timestamps: true})
+},{freezeTableName: true, timestamps: false})
 
 
 module.exports = User

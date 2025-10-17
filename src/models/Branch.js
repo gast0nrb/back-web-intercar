@@ -17,18 +17,26 @@ const Branch = sq.define(
     },
     phone: {
       allowNull: false,
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
     },
     adress: {
       allowNull: false,
       type: DataTypes.STRING,
     },
-    url: {
+    embeedwaze: {
       allowNull: false,
       type: DataTypes.STRING,
     },
+    wazeredirection : {
+      allowNull: false,
+      type : DataTypes.STRING,
+    },
+    mapsredirection : {
+      allowNull: false,
+      type : DataTypes.STRING
+    },
   },
-  { freezeTableName: true, timestamps: true }
+  { freezeTableName: true, timestamps: false }
 );
 
 District.hasMany(Branch, {

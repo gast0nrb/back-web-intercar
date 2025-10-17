@@ -4,7 +4,7 @@ const {verifyToken, protectRoot, protectAdmin} = require("../middlewares/authent
 
 router.route("/users").get(verifyToken,protectAdmin, getUsers)
    .post(
-      verifyToken,protectRoot,
+     verifyToken,protectRoot,
       createUser)
 router.route("/users/:id").put(verifyToken,protectRoot,updateUser).delete(verifyToken, protectRoot,deleteUser)
 
